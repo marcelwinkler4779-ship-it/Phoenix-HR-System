@@ -1,0 +1,1342 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phoenix HR - Human Resource Management</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0052CC; --primary-dark: #003D99; --secondary: #00875A;
+            --accent: #FF5630; --warning: #FFAB00; --purple: #6554C0;
+            --surface: #FFFFFF; --surface-2: #F4F5F7; --surface-3: #EBECF0;
+            --text: #172B4D; --text-2: #5E6C84; --text-3: #97A0AF;
+            --border: #DFE1E6; --radius: 8px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: var(--surface-2); color: var(--text); min-height: 100vh; }
+        .hidden { display: none !important; }
+        
+        .btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; border: none; border-radius: var(--radius); font-family: inherit; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-dark); }
+        .btn-secondary { background: var(--surface); color: var(--text); border: 1px solid var(--border); }
+        .btn-success { background: var(--secondary); color: white; }
+        .btn-danger { background: var(--accent); color: white; }
+        .btn-warning { background: var(--warning); color: var(--text); }
+        .btn-sm { padding: 6px 12px; font-size: 12px; }
+        
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 6px; font-size: 13px; font-weight: 500; color: var(--text-2); }
+        .form-group label .req { color: var(--accent); }
+        .input { width: 100%; padding: 10px 14px; border: 1px solid var(--border); border-radius: var(--radius); font-family: inherit; font-size: 14px; }
+        .input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(0,82,204,0.1); }
+        select.input { cursor: pointer; }
+        textarea.input { resize: vertical; min-height: 80px; }
+        
+        .card { background: var(--surface); border-radius: 12px; box-shadow: 0 1px 3px rgba(23,43,77,0.08); border: 1px solid var(--border); }
+        
+        .badge { display: inline-flex; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; text-transform: uppercase; }
+        .badge-blue { background: #DEEBFF; color: var(--primary); }
+        .badge-green { background: #E3FCEF; color: var(--secondary); }
+        .badge-orange { background: #FFFAE6; color: #FF8B00; }
+        .badge-red { background: #FFEBE6; color: var(--accent); }
+        .badge-purple { background: #EAE6FF; color: var(--purple); }
+        .badge-gray { background: var(--surface-3); color: var(--text-2); }
+        
+        .avatar { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 14px; color: white; background: linear-gradient(135deg, var(--primary), #4C9AFF); }
+        .avatar-sm { width: 32px; height: 32px; font-size: 12px; }
+        .avatar-lg { width: 56px; height: 56px; font-size: 20px; }
+        .icon { font-family: 'Material Icons Round'; font-size: 20px; }
+        .row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+        
+        /* Clock Widget */
+        .clock-widget { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); border-radius: 16px; padding: 24px; color: white; text-align: center; box-shadow: 0 4px 20px rgba(0,82,204,0.3); }
+        .clock-time { font-size: 48px; font-weight: 700; font-variant-numeric: tabular-nums; }
+        .clock-seconds { font-size: 20px; opacity: 0.7; vertical-align: super; }
+        .clock-date { font-size: 16px; margin-top: 8px; opacity: 0.9; }
+        .clock-greeting { font-size: 14px; margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.2); }
+        
+        /* Vacation Widget */
+        .vacation-widget { background: white; border-radius: 16px; padding: 20px; box-shadow: 0 1px 3px rgba(23,43,77,0.08); border: 1px solid var(--border); }
+        .vacation-widget h3 { font-size: 15px; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+        .vacation-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+        .vacation-stat { text-align: center; padding: 16px 12px; border-radius: 10px; }
+        .vacation-stat.total { background: #F0F7FF; }
+        .vacation-stat.remaining { background: #E3FCEF; }
+        .vacation-stat.pending { background: #FFFAE6; }
+        .vacation-stat-value { font-size: 28px; font-weight: 700; }
+        .vacation-stat.total .vacation-stat-value { color: var(--primary); }
+        .vacation-stat.remaining .vacation-stat-value { color: var(--secondary); }
+        .vacation-stat.pending .vacation-stat-value { color: #FF8B00; }
+        .vacation-stat-label { font-size: 12px; color: var(--text-2); margin-top: 4px; }
+        
+        /* Welcome Screen */
+        .welcome { min-height: 100vh; background: linear-gradient(135deg, #0052CC 0%, #003D99 50%, #172B4D 100%); display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .welcome-box { max-width: 900px; width: 100%; text-align: center; }
+        .welcome-logo { display: flex; align-items: center; justify-content: center; gap: 16px; margin-bottom: 24px; }
+        .welcome-logo .logo-icon { width: 56px; height: 56px; background: white; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 28px; }
+        .welcome-logo h1 { color: white; font-size: 32px; font-weight: 700; }
+        .welcome-subtitle { color: rgba(255,255,255,0.8); font-size: 18px; margin-bottom: 48px; }
+        .portal-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+        .portal-card { background: white; border-radius: 16px; padding: 32px; cursor: pointer; transition: all 0.3s; border: 2px solid transparent; text-align: left; }
+        .portal-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.16); border-color: #4C9AFF; }
+        .portal-icon { width: 56px; height: 56px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 28px; margin-bottom: 16px; }
+        .portal-icon.app { background: #DEEBFF; }
+        .portal-icon.emp { background: #E3FCEF; }
+        .portal-icon.sup { background: #FFFAE6; }
+        .portal-icon.adm { background: #EAE6FF; }
+        .portal-title { font-size: 20px; font-weight: 600; margin-bottom: 8px; }
+        .portal-desc { font-size: 14px; color: var(--text-2); line-height: 1.6; }
+        
+        /* Auth */
+        .auth { min-height: 100vh; display: none; background: linear-gradient(135deg, #0052CC 0%, #003D99 100%); align-items: center; justify-content: center; padding: 20px; }
+        .auth.active { display: flex; }
+        .auth-card { background: white; border-radius: 16px; padding: 48px; width: 100%; max-width: 440px; }
+        .auth-header { text-align: center; margin-bottom: 32px; }
+        .auth-header .logo-icon { width: 48px; height: 48px; background: linear-gradient(135deg, var(--primary), #4C9AFF); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; margin: 0 auto 16px; }
+        .auth-header h2 { font-size: 24px; font-weight: 600; margin-bottom: 8px; }
+        .auth-header p { color: var(--text-2); font-size: 14px; }
+        .auth-back { display: inline-flex; align-items: center; gap: 4px; color: var(--text-2); font-size: 13px; cursor: pointer; margin-bottom: 24px; }
+        .auth-back:hover { color: var(--primary); }
+        
+        /* ATS Portal */
+        .ats { min-height: 100vh; display: none; background: var(--surface-2); }
+        .ats.active { display: block; }
+        .ats-header { background: white; border-bottom: 1px solid var(--border); padding: 16px 24px; position: sticky; top: 0; z-index: 100; }
+        .ats-header-inner { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; }
+        .ats-logo { display: flex; align-items: center; gap: 12px; }
+        .ats-logo .logo-icon { width: 36px; height: 36px; background: linear-gradient(135deg, var(--primary), #4C9AFF); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+        .ats-logo span { font-weight: 600; font-size: 18px; }
+        .ats-nav a { color: var(--text-2); text-decoration: none; font-size: 14px; font-weight: 500; cursor: pointer; }
+        .ats-nav a:hover { color: var(--primary); }
+        .ats-content { max-width: 900px; margin: 0 auto; padding: 40px 24px; }
+        .ats-form-card { background: white; border-radius: 16px; overflow: hidden; }
+        .ats-form-header { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); padding: 32px; color: white; }
+        .ats-form-header h1 { font-size: 28px; font-weight: 600; margin-bottom: 8px; }
+        .ats-form-header p { opacity: 0.9; }
+        .ats-form-body { padding: 32px; }
+        .ats-section { margin-bottom: 32px; }
+        .ats-section-title { font-size: 16px; font-weight: 600; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }
+        .upload-zone { border: 2px dashed var(--border); border-radius: 12px; padding: 40px; text-align: center; cursor: pointer; background: var(--surface-2); }
+        .upload-zone:hover { border-color: var(--primary); background: #F0F7FF; }
+        .upload-zone .icon { font-size: 48px; color: var(--primary); margin-bottom: 16px; display: block; }
+        .skills-box { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+        .skill-tag { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; background: var(--primary); color: white; border-radius: 20px; font-size: 13px; }
+        .skill-tag .remove { cursor: pointer; }
+        
+        /* GDPR */
+        .gdpr-box { background: linear-gradient(135deg, #F0F7FF, #DEEBFF); border: 1px solid #B3D4FF; border-radius: 12px; padding: 24px; margin-top: 24px; }
+        .gdpr-box h4 { display: flex; align-items: center; gap: 8px; font-size: 15px; color: var(--primary); margin-bottom: 16px; }
+        .gdpr-check { display: flex; gap: 12px; align-items: flex-start; }
+        .gdpr-check input { width: 20px; height: 20px; margin-top: 2px; }
+        .gdpr-check label { font-size: 14px; cursor: pointer; }
+        .gdpr-details { background: white; border-radius: 8px; padding: 16px; margin-top: 16px; font-size: 13px; color: var(--text-2); line-height: 1.7; }
+        .gdpr-details h5 { color: var(--primary); font-size: 13px; margin: 12px 0 8px 0; }
+        .gdpr-details h5:first-child { margin-top: 0; }
+        .gdpr-contact { background: #FFFAE6; border-left: 3px solid var(--warning); padding: 12px 16px; margin-top: 16px; border-radius: 0 8px 8px 0; }
+        
+        /* Main App */
+        .main-app { display: none; min-height: 100vh; }
+        .main-app.active { display: flex; }
+        
+        .sidebar { width: 260px; background: var(--text); color: white; display: flex; flex-direction: column; position: fixed; top: 0; left: 0; bottom: 0; z-index: 100; }
+        .sidebar-header { padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .sidebar-logo { display: flex; align-items: center; gap: 12px; }
+        .sidebar-logo .logo-icon { width: 36px; height: 36px; background: linear-gradient(135deg, var(--primary), #4C9AFF); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+        .sidebar-logo span { font-weight: 600; font-size: 16px; }
+        .sidebar-nav { flex: 1; padding: 16px 12px; overflow-y: auto; }
+        .nav-section { margin-bottom: 24px; }
+        .nav-section-title { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,0.4); padding: 0 12px; margin-bottom: 8px; }
+        .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 8px; color: rgba(255,255,255,0.7); cursor: pointer; margin-bottom: 4px; }
+        .nav-item:hover { background: rgba(255,255,255,0.08); color: white; }
+        .nav-item.active { background: var(--primary); color: white; }
+        .nav-item .icon { font-size: 20px; }
+        .nav-item span:not(.icon):not(.badge) { font-size: 14px; font-weight: 500; }
+        .nav-item .badge { margin-left: auto; background: var(--accent); color: white; padding: 2px 8px; font-size: 10px; }
+        .sidebar-footer { padding: 16px; border-top: 1px solid rgba(255,255,255,0.1); }
+        .sidebar-user { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 8px; cursor: pointer; }
+        .sidebar-user:hover { background: rgba(255,255,255,0.08); }
+        .sidebar-user-name { font-size: 14px; font-weight: 500; }
+        .sidebar-user-role { font-size: 12px; color: rgba(255,255,255,0.5); }
+        
+        .main-content { flex: 1; margin-left: 260px; display: flex; flex-direction: column; }
+        .topbar { background: white; border-bottom: 1px solid var(--border); padding: 16px 32px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 50; }
+        .topbar-title { font-size: 20px; font-weight: 600; }
+        .topbar-icon { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-2); }
+        .topbar-icon:hover { background: var(--surface-2); }
+        .content-area { flex: 1; padding: 32px; overflow-y: auto; }
+        
+        .section { display: none; }
+        .section.active { display: block; }
+        
+        /* Dashboard Grid */
+        .dashboard-top { display: grid; grid-template-columns: 320px 1fr; gap: 24px; margin-bottom: 24px; }
+        .dashboard-left { display: flex; flex-direction: column; gap: 20px; }
+        
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+        .stat-card { background: white; border-radius: 12px; padding: 20px; border: 1px solid var(--border); }
+        .stat-card-icon { width: 44px; height: 44px; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px; }
+        .stat-card-icon.blue { background: #DEEBFF; color: var(--primary); }
+        .stat-card-icon.green { background: #E3FCEF; color: var(--secondary); }
+        .stat-card-icon.orange { background: #FFFAE6; color: #FF8B00; }
+        .stat-card-icon.purple { background: #EAE6FF; color: var(--purple); }
+        .stat-card-icon.red { background: #FFEBE6; color: var(--accent); }
+        .stat-card-value { font-size: 28px; font-weight: 700; }
+        .stat-card-label { font-size: 13px; color: var(--text-2); margin-top: 4px; }
+        
+        .quick-actions { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+        .quick-action { background: white; border: 1px solid var(--border); border-radius: 12px; padding: 20px; cursor: pointer; text-align: center; transition: all 0.2s; }
+        .quick-action:hover { border-color: var(--primary); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+        .quick-action .icon { font-size: 28px; color: var(--primary); margin-bottom: 8px; display: block; }
+        .quick-action h4 { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+        .quick-action p { font-size: 12px; color: var(--text-2); }
+        
+        /* Calendar Widget */
+        .calendar-widget { background: white; border-radius: 16px; padding: 24px; border: 1px solid var(--border); margin-bottom: 24px; }
+        .calendar-widget h3 { font-size: 16px; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+        .calendar-iframe { width: 100%; height: 350px; border: none; border-radius: 8px; }
+        
+        /* Tables */
+        .data-table { width: 100%; border-collapse: collapse; }
+        .data-table th { text-align: left; padding: 12px 16px; font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--text-2); background: var(--surface-2); border-bottom: 1px solid var(--border); }
+        .data-table td { padding: 14px 16px; border-bottom: 1px solid var(--border); font-size: 14px; }
+        .data-table tr:hover td { background: var(--surface-2); }
+        .table-user { display: flex; align-items: center; gap: 12px; }
+        .table-user-name { font-weight: 500; }
+        .table-user-sub { font-size: 12px; color: var(--text-2); }
+        .table-actions { display: flex; gap: 8px; }
+        
+        /* Customer Cards */
+        .customer-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
+        .customer-card { background: white; border-radius: 12px; border: 1px solid var(--border); overflow: hidden; transition: all 0.2s; }
+        .customer-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+        .customer-card-header { padding: 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 16px; }
+        .customer-card-logo { width: 48px; height: 48px; border-radius: 8px; background: var(--surface-2); display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 700; color: var(--primary); }
+        .customer-card-info h4 { font-size: 16px; font-weight: 600; }
+        .customer-card-info p { font-size: 13px; color: var(--text-2); }
+        .customer-card-body { padding: 20px; }
+        .customer-card-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px; }
+        .customer-stat { text-align: center; padding: 12px; background: var(--surface-2); border-radius: 8px; }
+        .customer-stat-value { font-size: 20px; font-weight: 700; color: var(--primary); }
+        .customer-stat-label { font-size: 11px; color: var(--text-2); }
+        .customer-card-footer { padding: 16px 20px; background: var(--surface-2); display: flex; gap: 8px; }
+        
+        /* Employee Pool */
+        .pool-filters { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+        .pool-filter { padding: 8px 16px; border: 1px solid var(--border); border-radius: 20px; font-size: 13px; cursor: pointer; background: white; }
+        .pool-filter:hover { border-color: var(--primary); }
+        .pool-filter.active { background: var(--primary); color: white; border-color: var(--primary); }
+        
+        .employee-card { background: white; border-radius: 12px; border: 1px solid var(--border); padding: 20px; }
+        .employee-card-header { display: flex; align-items: center; gap: 16px; margin-bottom: 16px; }
+        .employee-card-status { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+        .status-dot { width: 10px; height: 10px; border-radius: 50%; }
+        .status-dot.available { background: var(--secondary); }
+        .status-dot.assigned { background: var(--primary); }
+        .status-dot.sick { background: var(--accent); }
+        .status-dot.terminated { background: var(--text-3); }
+        .employee-card-assignment { background: var(--surface-2); border-radius: 8px; padding: 12px; margin-top: 12px; }
+        .employee-card-assignment h5 { font-size: 12px; color: var(--text-2); margin-bottom: 4px; }
+        .employee-card-assignment p { font-size: 14px; font-weight: 500; }
+        
+        /* Modal */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(23,43,77,0.6); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
+        .modal-overlay.active { display: flex; }
+        .modal { background: white; border-radius: 16px; width: 100%; max-width: 700px; max-height: 90vh; overflow: hidden; display: flex; flex-direction: column; }
+        .modal-header { padding: 24px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+        .modal-header h3 { font-size: 18px; font-weight: 600; }
+        .modal-close { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-2); }
+        .modal-close:hover { background: var(--surface-2); }
+        .modal-body { padding: 24px; overflow-y: auto; flex: 1; }
+        .modal-footer { padding: 16px 24px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 12px; }
+        
+        /* Toast */
+        .toast-container { position: fixed; top: 24px; right: 24px; z-index: 2000; display: flex; flex-direction: column; gap: 12px; }
+        .toast { background: white; border-radius: 12px; padding: 16px 20px; box-shadow: 0 8px 24px rgba(0,0,0,0.16); display: flex; align-items: center; gap: 12px; min-width: 320px; animation: slideIn 0.3s ease; border-left: 4px solid var(--secondary); }
+        .toast.error { border-left-color: var(--accent); }
+        .toast .icon { font-size: 24px; }
+        .toast.success .icon { color: var(--secondary); }
+        .toast.error .icon { color: var(--accent); }
+        .toast-content { flex: 1; }
+        .toast-title { font-weight: 600; font-size: 14px; }
+        .toast-message { font-size: 13px; color: var(--text-2); }
+        .toast-close { cursor: pointer; color: var(--text-3); }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        
+        /* Pipeline */
+        .pipeline-board { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 16px; }
+        .pipeline-column { min-width: 280px; background: var(--surface-2); border-radius: 12px; padding: 16px; }
+        .pipeline-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .pipeline-title { font-weight: 600; font-size: 14px; }
+        .pipeline-count { background: white; padding: 2px 10px; border-radius: 10px; font-size: 12px; }
+        .pipeline-cards { display: flex; flex-direction: column; gap: 12px; }
+        .candidate-card { background: white; border-radius: 10px; padding: 16px; border: 1px solid var(--border); cursor: pointer; }
+        .candidate-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        
+        /* Tabs */
+        .tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); margin-bottom: 24px; }
+        .tab { padding: 12px 24px; font-size: 14px; font-weight: 500; color: var(--text-2); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+        .tab:hover { color: var(--text); }
+        .tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+        
+        @media (max-width: 1200px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } .quick-actions { grid-template-columns: repeat(2, 1fr); } .dashboard-top { grid-template-columns: 1fr; } }
+        @media (max-width: 768px) { .portal-grid, .row { grid-template-columns: 1fr; } .sidebar { transform: translateX(-100%); } .main-content { margin-left: 0; } }
+    </style>
+</head>
+<body>
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Welcome Screen -->
+    <div class="welcome" id="welcomeScreen">
+        <div class="welcome-box">
+            <div class="welcome-logo">
+                <div class="logo-icon">🔥</div>
+                <h1>Phoenix HR</h1>
+            </div>
+            <p class="welcome-subtitle">Human Resource Management</p>
+            <div class="portal-grid">
+                <div class="portal-card" onclick="showATS()">
+                    <div class="portal-icon app">📝</div>
+                    <h3 class="portal-title">Karriere Portal</h3>
+                    <p class="portal-desc">Bewerben Sie sich online. ATS-optimierter Bewerbungsprozess.</p>
+                </div>
+                <div class="portal-card" onclick="showLogin('employee')">
+                    <div class="portal-icon emp">👤</div>
+                    <h3 class="portal-title">Mitarbeiter Portal</h3>
+                    <p class="portal-desc">Self-Service für Urlaub, Zeiterfassung & Dokumente.</p>
+                </div>
+                <div class="portal-card" onclick="showLogin('supervisor')">
+                    <div class="portal-icon sup">👥</div>
+                    <h3 class="portal-title">Team Manager</h3>
+                    <p class="portal-desc">Kundenportal, Mitarbeitereinsatz & Teamverwaltung.</p>
+                </div>
+                <div class="portal-card" onclick="showLogin('admin')">
+                    <div class="portal-icon adm">⚙️</div>
+                    <h3 class="portal-title">HR Administration</h3>
+                    <p class="portal-desc">Vollzugriff auf alle HR-Funktionen.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Auth Screen -->
+    <div class="auth" id="authScreen">
+        <div class="auth-card">
+            <div class="auth-back" onclick="backToWelcome()"><span class="icon">arrow_back</span> Zurück</div>
+            <div class="auth-header">
+                <div class="logo-icon">🔥</div>
+                <h2 id="authTitle">Anmelden</h2>
+                <p id="authSubtitle">Bitte melden Sie sich an</p>
+            </div>
+            <form id="loginForm" onsubmit="handleLogin(event)">
+                <div class="form-group"><label>E-Mail <span class="req">*</span></label><input type="email" class="input" id="loginEmail" required></div>
+                <div class="form-group"><label>Passwort <span class="req">*</span></label><input type="password" class="input" id="loginPassword" required></div>
+                <button type="submit" class="btn btn-primary" style="width:100%">Anmelden</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ATS Portal -->
+    <div class="ats" id="atsPortal">
+        <header class="ats-header">
+            <div class="ats-header-inner">
+                <div class="ats-logo"><div class="logo-icon">🔥</div><span>Phoenix Karriere</span></div>
+                <nav class="ats-nav"><a onclick="backToWelcome()">Startseite</a></nav>
+            </div>
+        </header>
+        <div class="ats-content">
+            <div class="ats-form-card">
+                <div class="ats-form-header"><h1>Online-Bewerbung</h1><p>Werden Sie Teil unseres Teams!</p></div>
+                <div class="ats-form-body">
+                    <form id="applicationForm" onsubmit="submitApplication(event)">
+                        <div class="ats-section">
+                            <h3 class="ats-section-title"><span class="icon">upload_file</span> Dokumente</h3>
+                            <div class="upload-zone" onclick="document.getElementById('fileInput').click()">
+                                <span class="icon">cloud_upload</span>
+                                <h4>Lebenslauf hochladen</h4>
+                                <p>PDF, DOCX • Max. 10 MB</p>
+                                <input type="file" id="fileInput" accept=".pdf,.docx,.doc" style="display:none" onchange="handleFileUpload(event)">
+                            </div>
+                        </div>
+                        <div class="ats-section">
+                            <h3 class="ats-section-title"><span class="icon">person</span> Persönliche Angaben</h3>
+                            <div class="row">
+                                <div class="form-group"><label>Vorname <span class="req">*</span></label><input type="text" class="input" id="appFirstName" required></div>
+                                <div class="form-group"><label>Nachname <span class="req">*</span></label><input type="text" class="input" id="appLastName" required></div>
+                            </div>
+                            <div class="row">
+                                <div class="form-group"><label>E-Mail <span class="req">*</span></label><input type="email" class="input" id="appEmail" required></div>
+                                <div class="form-group"><label>Telefon</label><input type="tel" class="input" id="appPhone"></div>
+                            </div>
+                        </div>
+                        <div class="ats-section">
+                            <h3 class="ats-section-title"><span class="icon">work</span> Bewerbungsziel</h3>
+                            <div class="form-group">
+                                <label>Position <span class="req">*</span></label>
+                                <select class="input" id="appPosition" required>
+                                    <option value="">Bitte wählen...</option>
+                                    <option value="Facharbeiter Metall">Facharbeiter Metall (m/w/d)</option>
+                                    <option value="Facharbeiter Elektro">Facharbeiter Elektro (m/w/d)</option>
+                                    <option value="Produktionshelfer">Produktionshelfer (m/w/d)</option>
+                                    <option value="Lagerlogistik">Lagerlogistik (m/w/d)</option>
+                                    <option value="Kaufmännisch">Kaufmännische Fachkraft (m/w/d)</option>
+                                    <option value="Initiativbewerbung">Initiativbewerbung</option>
+                                </select>
+                            </div>
+                            <div class="row">
+                                <div class="form-group"><label>Frühester Eintritt</label><input type="date" class="input" id="appStartDate"></div>
+                                <div class="form-group"><label>Stundenlohn-Vorstellung</label><input type="text" class="input" id="appSalary" placeholder="z.B. 15,00 €"></div>
+                            </div>
+                        </div>
+                        <div class="ats-section">
+                            <h3 class="ats-section-title"><span class="icon">psychology</span> Skills</h3>
+                            <div class="form-group"><label>Skills hinzufügen</label><input type="text" class="input" id="skillInput" placeholder="Skill + Enter"></div>
+                            <div class="skills-box" id="skillsContainer"></div>
+                        </div>
+                        <div class="gdpr-box">
+                            <h4><span class="icon">security</span> Datenschutz (DSGVO)</h4>
+                            <div class="gdpr-check">
+                                <input type="checkbox" id="gdprConsent" required>
+                                <label for="gdprConsent">Ich stimme der Verarbeitung meiner Daten zu.</label>
+                            </div>
+                            <div class="gdpr-details">
+                                <h5>📜 Rechtsgrundlage:</h5>
+                                • <strong>Art. 6 Abs. 1 lit. a DSGVO</strong> (Einwilligung)<br>
+                                • <strong>Art. 88 DSGVO i.V.m. § 26 BDSG</strong> (Beschäftigtendatenschutz)
+                                <h5>⏰ Speicherfristen:</h5>
+                                • <strong>Nicht berücksichtigt:</strong> Löschung nach <strong>6 Monaten</strong> (Art. 17 DSGVO)<br>
+                                • <strong>Bei Einstellung:</strong> <strong>10 Jahre</strong> nach Beschäftigungsende (§ 147 AO, § 257 HGB)
+                                <div class="gdpr-contact">
+                                    <strong>ℹ️ Ihre Rechte:</strong> Auskunft (Art. 15), Berichtigung (Art. 16), Löschung (Art. 17), Datenübertragbarkeit (Art. 20), Widerspruch (Art. 21)<br><br>
+                                    <strong>📞 Kontakt:</strong><br>Project Phoenix • Neumarkt 7, 04758 Oschatz<br>E-Mail: <strong>datenschutz@project-phoenix.de</strong> • Tel: <strong>03435-6607781</strong>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="width:100%;margin-top:24px;padding:16px"><span class="icon">send</span> Bewerbung absenden</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Application -->
+    <div class="main-app" id="mainApp">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo"><div class="logo-icon">🔥</div><span>Phoenix HR</span></div>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">Übersicht</div>
+                    <div class="nav-item active" data-section="dashboard" onclick="showSection('dashboard')">
+                        <span class="icon">dashboard</span><span>Dashboard</span>
+                    </div>
+                    <div class="nav-item" data-section="calendar" onclick="showSection('calendar')">
+                        <span class="icon">calendar_month</span><span>Kalender</span>
+                    </div>
+                </div>
+                <div class="nav-section" id="navCustomers">
+                    <div class="nav-section-title">Kundenmanagement</div>
+                    <div class="nav-item" data-section="customers" onclick="showSection('customers')">
+                        <span class="icon">business</span><span>Kunden</span><span class="badge" id="customersBadge">0</span>
+                    </div>
+                    <div class="nav-item" data-section="requirements" onclick="showSection('requirements')">
+                        <span class="icon">assignment</span><span>Anforderungen</span><span class="badge" id="reqBadge">0</span>
+                    </div>
+                </div>
+                <div class="nav-section" id="navPool">
+                    <div class="nav-section-title">Personal</div>
+                    <div class="nav-item" data-section="pool" onclick="showSection('pool')">
+                        <span class="icon">groups</span><span>Mitarbeiter-Pool</span><span class="badge" id="poolBadge">0</span>
+                    </div>
+                    <div class="nav-item" data-section="assignments" onclick="showSection('assignments')">
+                        <span class="icon">swap_horiz</span><span>Einsatzplanung</span>
+                    </div>
+                    <div class="nav-item" data-section="candidates" onclick="showSection('candidates')">
+                        <span class="icon">person_search</span><span>Bewerber</span><span class="badge" id="candidatesBadge">0</span>
+                    </div>
+                </div>
+                <div class="nav-section" id="navTeam">
+                    <div class="nav-section-title">Self-Service</div>
+                    <div class="nav-item" data-section="timeoff" onclick="showSection('timeoff')">
+                        <span class="icon">event_available</span><span>Urlaub</span><span class="badge" id="timeoffBadge">0</span>
+                    </div>
+                </div>
+                <div class="nav-section" id="navAdmin">
+                    <div class="nav-section-title">Administration</div>
+                    <div class="nav-item" data-section="users" onclick="showSection('users')">
+                        <span class="icon">manage_accounts</span><span>Benutzer</span>
+                    </div>
+                    <div class="nav-item" data-section="settings" onclick="showSection('settings')">
+                        <span class="icon">settings</span><span>Einstellungen</span>
+                    </div>
+                </div>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="sidebar-user" onclick="logout()">
+                    <div class="avatar" id="sidebarAvatar">?</div>
+                    <div style="flex:1">
+                        <div class="sidebar-user-name" id="sidebarUserName">Benutzer</div>
+                        <div class="sidebar-user-role" id="sidebarUserRole">Rolle</div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="topbar">
+                <h1 class="topbar-title" id="pageTitle">Dashboard</h1>
+                <div style="display:flex;align-items:center;gap:16px">
+                    <div class="topbar-icon" onclick="logout()"><span class="icon">logout</span></div>
+                </div>
+            </div>
+
+            <div class="content-area">
+                <!-- DASHBOARD -->
+                <div class="section active" id="sectionDashboard">
+                    <div class="dashboard-top">
+                        <div class="dashboard-left">
+                            <div class="clock-widget">
+                                <div class="clock-time"><span id="clockHours">00</span>:<span id="clockMinutes">00</span><span class="clock-seconds" id="clockSeconds">:00</span></div>
+                                <div class="clock-date" id="clockDate">1. Januar 2025</div>
+                                <div class="clock-greeting" id="clockGreeting">Guten Tag!</div>
+                            </div>
+                            <div class="vacation-widget">
+                                <h3><span class="icon">beach_access</span> Urlaubskonto</h3>
+                                <div class="vacation-stats">
+                                    <div class="vacation-stat total"><div class="vacation-stat-value" id="vacTotal">30</div><div class="vacation-stat-label">Gesamt</div></div>
+                                    <div class="vacation-stat remaining"><div class="vacation-stat-value" id="vacRemaining">30</div><div class="vacation-stat-label">Verbleibend</div></div>
+                                    <div class="vacation-stat pending"><div class="vacation-stat-value" id="vacPending">0</div><div class="vacation-stat-label">Beantragt</div></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="stats-grid" id="statsGrid"></div>
+                            <div class="quick-actions" id="quickActions"></div>
+                        </div>
+                    </div>
+                    <div class="calendar-widget">
+                        <h3><span class="icon">calendar_month</span> Kalender</h3>
+                        <iframe class="calendar-iframe" src="https://calendar.google.com/calendar/embed?height=350&wkst=2&ctz=Europe%2FBerlin&showPrint=0&showTabs=0&showCalendars=0&showTz=0&showNav=1&showTitle=0&mode=WEEK&hl=de" frameborder="0" scrolling="no"></iframe>
+                    </div>
+                </div>
+
+                <!-- CUSTOMERS -->
+                <div class="section" id="sectionCustomers">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px">
+                        <div>
+                            <h2 style="font-size:18px;margin-bottom:4px">Kundenunternehmen</h2>
+                            <p style="color:var(--text-2);font-size:14px">Verwalten Sie Ihre Kundenunternehmen und deren Anforderungen</p>
+                        </div>
+                        <button class="btn btn-primary" onclick="openModal('customerModal')"><span class="icon">add_business</span> Neuer Kunde</button>
+                    </div>
+                    <div class="customer-grid" id="customersGrid"></div>
+                </div>
+
+                <!-- REQUIREMENTS (Stellenanforderungen) -->
+                <div class="section" id="sectionRequirements">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px">
+                        <div>
+                            <h2 style="font-size:18px;margin-bottom:4px">Stellenanforderungen</h2>
+                            <p style="color:var(--text-2);font-size:14px">Offene Anforderungen Ihrer Kunden</p>
+                        </div>
+                        <button class="btn btn-primary" onclick="openModal('requirementModal')"><span class="icon">post_add</span> Neue Anforderung</button>
+                    </div>
+                    <div class="card"><table class="data-table"><thead><tr><th>Kunde</th><th>Position</th><th>Anzahl</th><th>Status</th><th>Erstellt</th><th>Aktionen</th></tr></thead><tbody id="requirementsTableBody"></tbody></table></div>
+                </div>
+
+                <!-- POOL (Mitarbeiter) -->
+                <div class="section" id="sectionPool">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px">
+                        <div>
+                            <h2 style="font-size:18px;margin-bottom:4px">Mitarbeiter-Pool</h2>
+                            <p style="color:var(--text-2);font-size:14px">Alle Mitarbeiter im Überblick mit aktuellem Einsatzstatus</p>
+                        </div>
+                        <button class="btn btn-primary" onclick="openModal('employeeModal')"><span class="icon">person_add</span> Neuer Mitarbeiter</button>
+                    </div>
+                    <div class="pool-filters" id="poolFilters">
+                        <div class="pool-filter active" data-filter="all" onclick="filterPool('all')">Alle</div>
+                        <div class="pool-filter" data-filter="available" onclick="filterPool('available')">🟢 Verfügbar</div>
+                        <div class="pool-filter" data-filter="assigned" onclick="filterPool('assigned')">🔵 Im Einsatz</div>
+                        <div class="pool-filter" data-filter="presented" onclick="filterPool('presented')">🟡 Vorgestellt</div>
+                        <div class="pool-filter" data-filter="sick" onclick="filterPool('sick')">🔴 Krank</div>
+                        <div class="pool-filter" data-filter="terminated" onclick="filterPool('terminated')">⚫ Beendet</div>
+                    </div>
+                    <div class="card"><table class="data-table"><thead><tr><th>Mitarbeiter</th><th>Position</th><th>Status</th><th>Kunde/Einsatzort</th><th>Seit</th><th>Aktionen</th></tr></thead><tbody id="poolTableBody"></tbody></table></div>
+                </div>
+
+                <!-- ASSIGNMENTS (Einsatzplanung) -->
+                <div class="section" id="sectionAssignments">
+                        </div>
+                        <button class="btn btn-primary" onclick="openModal('assignmentModal')"><span class="icon">assignment_ind</span> Neue Zuweisung</button>
+                    </div>
+                    <div class="tabs">
+                        <div class="tab active" onclick="showAssignmentTab('active')">Aktive Einsätze</div>
+                        <div class="tab" onclick="showAssignmentTab('history')">Historie</div>
+                    </div>
+                    <div class="card"><table class="data-table"><thead><tr><th>Mitarbeiter</th><th>Kunde</th><th>Position</th><th>Status</th><th>Beginn</th><th>Ende</th><th>Aktionen</th></tr></thead><tbody id="assignmentsTableBody"></tbody></table></div>
+                </div>
+
+                <!-- CANDIDATES (Bewerber) -->
+                <div class="section" id="sectionCandidates">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px">
+                        <h2 style="font-size:18px">Bewerber</h2>
+                    </div>
+                    <div class="card"><table class="data-table"><thead><tr><th>Bewerber</th><th>Position</th><th>Status</th><th>Datum</th><th>Aktionen</th></tr></thead><tbody id="candidatesTableBody"></tbody></table></div>
+                </div>
+
+                <!-- CALENDAR -->
+                <div class="section" id="sectionCalendar">
+                    <div class="calendar-widget" style="margin-bottom:0">
+                        <h3><span class="icon">calendar_month</span> Kalender</h3>
+                        <iframe style="height:600px" class="calendar-iframe" src="https://calendar.google.com/calendar/embed?height=600&wkst=2&ctz=Europe%2FBerlin&showPrint=0&showTabs=1&showCalendars=1&showTz=0&showNav=1&showTitle=0&mode=MONTH&hl=de" frameborder="0" scrolling="no"></iframe>
+                    </div>
+                </div>
+
+                <!-- TIMEOFF -->
+                <div class="section" id="sectionTimeoff">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px">
+                        <h2 style="font-size:18px">Urlaubsverwaltung</h2>
+                        <button class="btn btn-primary" onclick="openModal('timeoffModal')"><span class="icon">add_circle</span> Beantragen</button>
+                    </div>
+                    <div class="vacation-widget" style="margin-bottom:24px">
+                        <h3><span class="icon">beach_access</span> Mein Urlaubskonto</h3>
+                        <div class="vacation-stats">
+                            <div class="vacation-stat total"><div class="vacation-stat-value" id="vacTotal2">30</div><div class="vacation-stat-label">Gesamt</div></div>
+                            <div class="vacation-stat remaining"><div class="vacation-stat-value" id="vacRemaining2">30</div><div class="vacation-stat-label">Verbleibend</div></div>
+                            <div class="vacation-stat pending"><div class="vacation-stat-value" id="vacPending2">0</div><div class="vacation-stat-label">Beantragt</div></div>
+                        </div>
+                    </div>
+                    <div class="card"><table class="data-table"><thead><tr><th>Mitarbeiter</th><th>Zeitraum</th><th>Tage</th><th>Status</th><th>Aktionen</th></tr></thead><tbody id="timeoffTableBody"></tbody></table></div>
+                </div>
+
+                <!-- USERS -->
+                <div class="section" id="sectionUsers">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px">
+                        <h2 style="font-size:18px">Benutzerverwaltung</h2>
+                        <button class="btn btn-primary" onclick="openModal('userModal')"><span class="icon">person_add</span> Neuer Benutzer</button>
+                    </div>
+                    <div class="card"><table class="data-table"><thead><tr><th>Benutzer</th><th>Rolle</th><th>Status</th><th>Letzter Login</th><th>Aktionen</th></tr></thead><tbody id="usersTableBody"></tbody></table></div>
+                </div>
+
+                <!-- SETTINGS -->
+                <div class="section" id="sectionSettings">
+                    <div class="row">
+                        <div class="card" style="padding:24px">
+                            <h3 style="font-size:16px;margin-bottom:20px">Profil</h3>
+                            <form onsubmit="updateProfile(event)">
+                                <div class="form-group"><label>Vorname</label><input type="text" class="input" id="settingsFirstName"></div>
+                                <div class="form-group"><label>Nachname</label><input type="text" class="input" id="settingsLastName"></div>
+                                <div class="form-group"><label>E-Mail</label><input type="email" class="input" id="settingsEmail" disabled></div>
+                                <button type="submit" class="btn btn-primary">Speichern</button>
+                            </form>
+                        </div>
+                        <div class="card" style="padding:24px">
+                            <h3 style="font-size:16px;margin-bottom:20px">Passwort ändern</h3>
+                            <form onsubmit="changePassword(event)">
+                                <div class="form-group"><label>Aktuelles Passwort</label><input type="password" class="input" id="currentPassword" required></div>
+                                <div class="form-group"><label>Neues Passwort</label><input type="password" class="input" id="newPassword" required></div>
+                                <div class="form-group"><label>Bestätigen</label><input type="password" class="input" id="confirmPassword" required></div>
+                                <button type="submit" class="btn btn-primary">Ändern</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- MODALS -->
+    
+    <!-- Customer Modal -->
+    <div class="modal-overlay" id="customerModal">
+        <div class="modal">
+            <div class="modal-header"><h3>Neues Kundenunternehmen</h3><div class="modal-close" onclick="closeModal('customerModal')"><span class="icon">close</span></div></div>
+            <div class="modal-body">
+                <form id="customerForm" onsubmit="saveCustomer(event)">
+                    <div class="form-group"><label>Firmenname <span class="req">*</span></label><input type="text" class="input" id="custName" required></div>
+                    <div class="row">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px">
+                            <h2 style="font-size:18px;margin-bottom:4px">Einsatzplanung</h2>
+                            <p style="color:var(--text-2);font-size:14px">Mitarbeiter Kunden zuweisen und Status verwalten</p>
+                        <div class="form-group"><label>Branche</label><input type="text" class="input" id="custBranch" placeholder="z.B. Metallverarbeitung"></div>
+                        <div class="form-group"><label>Kundennummer</label><input type="text" class="input" id="custNumber"></div>
+                    </div>
+                    <div class="form-group"><label>Adresse</label><input type="text" class="input" id="custAddress"></div>
+                    <div class="row">
+                        <div class="form-group"><label>PLZ</label><input type="text" class="input" id="custZip"></div>
+                        <div class="form-group"><label>Ort</label><input type="text" class="input" id="custCity"></div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group"><label>Ansprechpartner</label><input type="text" class="input" id="custContact"></div>
+                        <div class="form-group"><label>Position</label><input type="text" class="input" id="custContactPos"></div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group"><label>Telefon</label><input type="tel" class="input" id="custPhone"></div>
+                        <div class="form-group"><label>E-Mail</label><input type="email" class="input" id="custEmail"></div>
+
+                    </div>
+                    <div class="form-group"><label>Notizen</label><textarea class="input" id="custNotes"></textarea></div>
+                    <div class="modal-footer" style="padding:0;border:none;margin-top:24px"><button type="button" class="btn btn-secondary" onclick="closeModal('customerModal')">Abbrechen</button><button type="submit" class="btn btn-primary">Speichern</button></div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Requirement Modal -->
+    <div class="modal-overlay" id="requirementModal">
+        <div class="modal">
+            <div class="modal-header"><h3>Neue Stellenanforderung</h3><div class="modal-close" onclick="closeModal('requirementModal')"><span class="icon">close</span></div></div>
+            <div class="modal-body">
+                <form id="requirementForm" onsubmit="saveRequirement(event)">
+                    <div class="form-group"><label>Kunde <span class="req">*</span></label><select class="input" id="reqCustomer" required><option value="">Bitte wählen...</option></select></div>
+                    <div class="row">
+                        <div class="form-group"><label>Position <span class="req">*</span></label><input type="text" class="input" id="reqPosition" required placeholder="z.B. CNC-Fräser"></div>
+                        <div class="form-group"><label>Anzahl MA</label><input type="number" class="input" id="reqCount" value="1" min="1"></div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group"><label>Stundenlohn (€)</label><input type="text" class="input" id="reqWage" placeholder="z.B. 16,50"></div>
+                        <div class="form-group"><label>Gewünschter Start</label><input type="date" class="input" id="reqStart"></div>
+                    </div>
+                    <div class="form-group"><label>Anforderungen</label><textarea class="input" id="reqDetails" placeholder="Qualifikationen, Schichtmodell, etc."></textarea></div>
+                    <div class="form-group"><label>Priorität</label><select class="input" id="reqPriority"><option value="normal">Normal</option><option value="high">Hoch</option><option value="urgent">Dringend</option></select></div>
+                    <div class="modal-footer" style="padding:0;border:none;margin-top:24px"><button type="button" class="btn btn-secondary" onclick="closeModal('requirementModal')">Abbrechen</button><button type="submit" class="btn btn-primary">Speichern</button></div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Employee Modal (Pool) -->
+    <div class="modal-overlay" id="employeeModal">
+        <div class="modal">
+            <div class="modal-header"><h3>Neuer Mitarbeiter</h3><div class="modal-close" onclick="closeModal('employeeModal')"><span class="icon">close</span></div></div>
+            <div class="modal-body">
+                <form id="employeeForm" onsubmit="saveEmployee(event)">
+                    <div class="row">
+                        <div class="form-group"><label>Vorname <span class="req">*</span></label><input type="text" class="input" id="empFirstName" required></div>
+                        <div class="form-group"><label>Nachname <span class="req">*</span></label><input type="text" class="input" id="empLastName" required></div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group"><label>E-Mail</label><input type="email" class="input" id="empEmail"></div>
+                        <div class="form-group"><label>Telefon</label><input type="tel" class="input" id="empPhone"></div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group"><label>Position/Qualifikation</label><input type="text" class="input" id="empPosition" placeholder="z.B. Schweißer"></div>
+                        <div class="form-group"><label>Personalnummer</label><input type="text" class="input" id="empNumber"></div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group"><label>Stundenlohn (€)</label><input type="text" class="input" id="empWage"></div>
+                        <div class="form-group"><label>Eintrittsdatum</label><input type="date" class="input" id="empStartDate"></div>
+                    </div>
+                    <div class="form-group"><label>Notizen/Skills</label><textarea class="input" id="empNotes"></textarea></div>
+                    <div class="modal-footer" style="padding:0;border:none;margin-top:24px"><button type="button" class="btn btn-secondary" onclick="closeModal('employeeModal')">Abbrechen</button><button type="submit" class="btn btn-primary">Speichern</button></div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Assignment Modal -->
+    <div class="modal-overlay" id="assignmentModal">
+        <div class="modal">
+            <div class="modal-header"><h3>Neue Zuweisung</h3><div class="modal-close" onclick="closeModal('assignmentModal')"><span class="icon">close</span></div></div>
+            <div class="modal-body">
+                <form id="assignmentForm" onsubmit="saveAssignment(event)">
+                    <div class="form-group"><label>Mitarbeiter <span class="req">*</span></label><select class="input" id="assignEmployee" required><option value="">Bitte wählen...</option></select></div>
+                    <div class="form-group"><label>Kunde <span class="req">*</span></label><select class="input" id="assignCustomer" required><option value="">Bitte wählen...</option></select></div>
+                    <div class="form-group"><label>Position beim Kunden</label><input type="text" class="input" id="assignPosition"></div>
+                    <div class="row">
+                        <div class="form-group"><label>Beginn <span class="req">*</span></label><input type="date" class="input" id="assignStart" required></div>
+                        <div class="form-group"><label>Geplantes Ende</label><input type="date" class="input" id="assignEnd"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Einsatzart <span class="req">*</span></label>
+                        <select class="input" id="assignType" required>
+                            <option value="presented">Vorgestellt</option>
+                            <option value="leased">Überlassen (ANÜ)</option>
+                            <option value="placed">Vermittelt</option>
+                        </select>
+                    </div>
+                    <div class="form-group"><label>Bemerkung</label><textarea class="input" id="assignNotes"></textarea></div>
+                    <div class="modal-footer" style="padding:0;border:none;margin-top:24px"><button type="button" class="btn btn-secondary" onclick="closeModal('assignmentModal')">Abbrechen</button><button type="submit" class="btn btn-primary">Zuweisen</button></div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Status Change Modal -->
+    <div class="modal-overlay" id="statusModal">
+        <div class="modal" style="max-width:500px">
+            <div class="modal-header"><h3>Status ändern</h3><div class="modal-close" onclick="closeModal('statusModal')"><span class="icon">close</span></div></div>
+            <div class="modal-body">
+                <form id="statusForm" onsubmit="changeAssignmentStatus(event)">
+                    <input type="hidden" id="statusAssignmentId">
+                    <div class="form-group">
+                        <label>Neuer Status <span class="req">*</span></label>
+                        <select class="input" id="newStatus" required>
+                            <option value="presented">🟡 Vorgestellt</option>
+                            <option value="leased">🔵 Überlassen (im Einsatz)</option>
+                            <option value="placed">🟢 Vermittelt</option>
+                            <option value="taken_over">✅ Übernommen vom Kunden</option>
+                            <option value="withdrawn">⬜ Abgemeldet</option>
+                            <option value="terminated">⚫ Gekündigt</option>
+                            <option value="sick">🔴 Krank</option>
+                        </select>
+                    </div>
+                    <div class="form-group"><label>Datum</label><input type="date" class="input" id="statusDate"></div>
+                    <div class="form-group"><label>Bemerkung</label><textarea class="input" id="statusNotes"></textarea></div>
+                    <div class="modal-footer" style="padding:0;border:none;margin-top:24px"><button type="button" class="btn btn-secondary" onclick="closeModal('statusModal')">Abbrechen</button><button type="submit" class="btn btn-primary">Status ändern</button></div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Timeoff Modal -->
+    <div class="modal-overlay" id="timeoffModal">
+        <div class="modal" style="max-width:500px">
+            <div class="modal-header"><h3>Urlaub beantragen</h3><div class="modal-close" onclick="closeModal('timeoffModal')"><span class="icon">close</span></div></div>
+            <div class="modal-body">
+                <form id="timeoffForm" onsubmit="requestTimeoff(event)">
+                    <div class="row">
+                        <div class="form-group"><label>Von <span class="req">*</span></label><input type="date" class="input" id="timeoffFrom" required></div>
+                        <div class="form-group"><label>Bis <span class="req">*</span></label><input type="date" class="input" id="timeoffTo" required></div>
+                    </div>
+                    <div class="form-group"><label>Art</label><select class="input" id="timeoffType"><option value="vacation">Urlaub</option><option value="sick">Krank</option><option value="personal">Sonderurlaub</option></select></div>
+                    <div class="form-group"><label>Bemerkung</label><textarea class="input" id="timeoffNote"></textarea></div>
+                    <div class="modal-footer" style="padding:0;border:none;margin-top:24px"><button type="button" class="btn btn-secondary" onclick="closeModal('timeoffModal')">Abbrechen</button><button type="submit" class="btn btn-primary">Einreichen</button></div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Modal -->
+    <div class="modal-overlay" id="userModal">
+        <div class="modal">
+            <div class="modal-header"><h3>Neuer Benutzer</h3><div class="modal-close" onclick="closeModal('userModal')"><span class="icon">close</span></div></div>
+            <div class="modal-body">
+                <form id="userForm" onsubmit="addUser(event)">
+                    <div class="row">
+                        <div class="form-group"><label>Vorname <span class="req">*</span></label><input type="text" class="input" id="newUserFirstName" required></div>
+                        <div class="form-group"><label>Nachname <span class="req">*</span></label><input type="text" class="input" id="newUserLastName" required></div>
+                    </div>
+                    <div class="form-group"><label>E-Mail <span class="req">*</span></label><input type="email" class="input" id="newUserEmail" required></div>
+                    <div class="form-group"><label>Passwort <span class="req">*</span></label><input type="password" class="input" id="newUserPassword" required></div>
+                    <div class="row">
+                        <div class="form-group">
+                            <label>Rolle <span class="req">*</span></label>
+                            <select class="input" id="newUserRole" required>
+                                <option value="employee">Mitarbeiter</option>
+                                <option value="supervisor">Team Manager</option>
+                                <option value="admin">Administrator</option>
+                            </select>
+                        </div>
+                        <div class="form-group"><label>Urlaubstage</label><input type="number" class="input" id="newUserVacation" value="30"></div>
+                    </div>
+                    <div class="modal-footer" style="padding:0;border:none;margin-top:24px"><button type="button" class="btn btn-secondary" onclick="closeModal('userModal')">Abbrechen</button><button type="submit" class="btn btn-primary">Anlegen</button></div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== CONFIG & STATE ====================
+        const DB_KEY = 'phoenixHRv3';
+        let currentUser = null;
+        let selectedLoginRole = null;
+        let appSkills = [];
+        let currentPoolFilter = 'all';
+
+        // ==================== INIT ====================
+        document.addEventListener('DOMContentLoaded', function() {
+            initDB();
+            setupEvents();
+            startClock();
+        });
+
+        function initDB() {
+            let db = getDB();
+            // Admin User
+            if (!db.users.find(u => u.email === 'marcel.winkler4779@gmail.com')) {
+                db.users.push({ id: genId(), firstName: 'Marcel', lastName: 'Winkler', email: 'marcel.winkler4779@gmail.com', password: 'Flyclub@1979', role: 'admin', status: 'active', vacationDays: 30, usedVacationDays: 0, createdAt: new Date().toISOString() });
+            }
+            // Sample Team Manager
+            if (!db.users.find(u => u.email === 'team1@phoenix.de')) {
+                db.users.push({ id: genId(), firstName: 'Team', lastName: 'Manager 1', email: 'team1@phoenix.de', password: 'team123', role: 'supervisor', status: 'active', vacationDays: 30, usedVacationDays: 0, createdAt: new Date().toISOString() });
+            }
+            saveDB(db);
+        }
+
+        function setupEvents() {
+            document.getElementById('skillInput')?.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') { e.preventDefault(); const s = this.value.trim(); if (s && !appSkills.includes(s)) { appSkills.push(s); renderSkills(); this.value = ''; } }
+            });
+            document.querySelectorAll('.modal-overlay').forEach(m => m.addEventListener('click', (e) => { if (e.target === m) m.classList.remove('active'); }));
+        }
+
+        function startClock() {
+            function update() {
+                const now = new Date();
+                document.getElementById('clockHours').textContent = String(now.getHours()).padStart(2, '0');
+                document.getElementById('clockMinutes').textContent = String(now.getMinutes()).padStart(2, '0');
+                document.getElementById('clockSeconds').textContent = ':' + String(now.getSeconds()).padStart(2, '0');
+                const days = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
+                const months = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
+                document.getElementById('clockDate').textContent = now.getDate() + '. ' + months[now.getMonth()] + ' ' + now.getFullYear();
+                const hour = now.getHours();
+                let greeting = 'Guten Tag';
+                if (hour < 6) greeting = 'Gute Nacht'; else if (hour < 12) greeting = 'Guten Morgen'; else if (hour < 18) greeting = 'Guten Tag'; else greeting = 'Guten Abend';
+                if (currentUser) greeting += ', ' + currentUser.firstName + '!'; else greeting += '!';
+                document.getElementById('clockGreeting').textContent = greeting;
+            }
+            update();
+            setInterval(update, 1000);
+        }
+
+        // ==================== DATABASE ====================
+        function getDB() {
+            const d = localStorage.getItem(DB_KEY);
+            return d ? JSON.parse(d) : { users: [], applications: [], customers: [], requirements: [], employees: [], assignments: [], timeoffRequests: [], activities: [] };
+
+    <script>
+        // ==================== CONFIG ====================
+        const API_URL = window.location.origin + '/api';
+        let currentUser = null;
+        let authToken = localStorage.getItem('phoenixToken');
+        let selectedLoginRole = null;
+        let appSkills = [];
+        let currentPoolFilter = 'all';
+
+        // Cache
+        let cacheCustomers = [];
+        let cacheEmployees = [];
+        let cacheAssignments = [];
+        let cacheRequirements = [];
+        let cacheApplications = [];
+        let cacheTimeoff = [];
+        let cacheUsers = [];
+
+        // ==================== API HELPER ====================
+        async function api(endpoint, method = 'GET', data = null) {
+            const options = {
+                method,
+                headers: { 'Content-Type': 'application/json' }
+            };
+            if (authToken) options.headers['Authorization'] = 'Bearer ' + authToken;
+            if (data) options.body = JSON.stringify(data);
+            try {
+                const res = await fetch(API_URL + endpoint, options);
+                return await res.json();
+            } catch (err) {
+                console.error('API Error:', err);
+                return { success: false, message: 'Verbindungsfehler' };
+            }
+        }
+
+        // ==================== INIT ====================
+        document.addEventListener('DOMContentLoaded', function() {
+            setupEvents();
+            startClock();
+            if (authToken) {
+                checkAuth();
+            }
+        });
+
+        async function checkAuth() {
+            const res = await api('/auth/me');
+            if (res.success && res.user) {
+                currentUser = res.user;
+                openDashboard();
+            } else {
+                localStorage.removeItem('phoenixToken');
+                authToken = null;
+            }
+        }
+
+        function setupEvents() {
+            document.getElementById('skillInput')?.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') { e.preventDefault(); const s = this.value.trim(); if (s && !appSkills.includes(s)) { appSkills.push(s); renderSkills(); this.value = ''; } }
+            });
+            document.querySelectorAll('.modal-overlay').forEach(m => m.addEventListener('click', (e) => { if (e.target === m) m.classList.remove('active'); }));
+        }
+
+        function startClock() {
+            function update() {
+                const now = new Date();
+                document.getElementById('clockHours').textContent = String(now.getHours()).padStart(2, '0');
+                document.getElementById('clockMinutes').textContent = String(now.getMinutes()).padStart(2, '0');
+                document.getElementById('clockSeconds').textContent = ':' + String(now.getSeconds()).padStart(2, '0');
+                const days = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
+                const months = ['Januar', 'Februar', 'Maerz', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
+                document.getElementById('clockDate').textContent = now.getDate() + '. ' + months[now.getMonth()] + ' ' + now.getFullYear();
+                const hour = now.getHours();
+                let greeting = hour < 6 ? 'Gute Nacht' : hour < 12 ? 'Guten Morgen' : hour < 18 ? 'Guten Tag' : 'Guten Abend';
+                if (currentUser) greeting += ', ' + currentUser.firstName + '!'; else greeting += '!';
+                document.getElementById('clockGreeting').textContent = greeting;
+            }
+            update();
+            setInterval(update, 1000);
+        }
+
+        // ==================== NAVIGATION ====================
+        function showLogin(role) {
+            selectedLoginRole = role;
+            const titles = { employee: 'Mitarbeiter Login', supervisor: 'Team Manager Login', admin: 'HR Admin Login' };
+            document.getElementById('authTitle').textContent = titles[role];
+            document.getElementById('welcomeScreen').style.display = 'none';
+            document.getElementById('authScreen').classList.add('active');
+        }
+
+        function showATS() {
+            document.getElementById('welcomeScreen').style.display = 'none';
+            document.getElementById('atsPortal').classList.add('active');
+        }
+
+        function backToWelcome() {
+            document.getElementById('welcomeScreen').style.display = 'flex';
+            document.getElementById('authScreen').classList.remove('active');
+            document.getElementById('atsPortal').classList.remove('active');
+            document.getElementById('mainApp').classList.remove('active');
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            const res = await api('/auth/login', 'POST', { email, password });
+            if (!res.success) { showToast('Fehler', res.message, 'error'); return; }
+            authToken = res.token;
+            localStorage.setItem('phoenixToken', authToken);
+            currentUser = res.user;
+            showToast('Willkommen!', 'Hallo ' + currentUser.firstName + '!', 'success');
+            openDashboard();
+        }
+
+        function logout() {
+            currentUser = null;
+            authToken = null;
+            localStorage.removeItem('phoenixToken');
+            backToWelcome();
+            showToast('Abgemeldet', 'Erfolgreich abgemeldet.', 'success');
+        }
+
+        async function openDashboard() {
+            document.getElementById('welcomeScreen').style.display = 'none';
+            document.getElementById('authScreen').classList.remove('active');
+            document.getElementById('mainApp').classList.add('active');
+            document.getElementById('sidebarUserName').textContent = currentUser.firstName + ' ' + currentUser.lastName;
+            document.getElementById('sidebarUserRole').textContent = getRoleLabel(currentUser.role);
+            document.getElementById('sidebarAvatar').textContent = getInitials(currentUser.firstName, currentUser.lastName);
+            setupNav();
+            await loadAllData();
+            loadDashboard();
+            showSection('dashboard');
+        }
+
+        async function loadAllData() {
+            const [customers, employees, assignments, requirements, applications, timeoff, users] = await Promise.all([
+                api('/customers'), api('/employees'), api('/assignments'), api('/requirements'), api('/applications'), api('/timeoff'), api('/users')
+            ]);
+            cacheCustomers = customers.data || [];
+            cacheEmployees = employees.data || [];
+            cacheAssignments = assignments.data || [];
+            cacheRequirements = requirements.data || [];
+            cacheApplications = applications.data || [];
+            cacheTimeoff = timeoff.data || [];
+            cacheUsers = users.data || [];
+            updateBadges();
+        }
+
+        function setupNav() {
+            const show = (id, v) => { const el = document.getElementById(id); if (el) el.classList.toggle('hidden', !v); };
+            show('navCustomers', currentUser.role !== 'employee');
+            show('navPool', currentUser.role !== 'employee');
+            show('navTeam', true);
+            show('navAdmin', currentUser.role === 'admin');
+        }
+
+        function showSection(name) {
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+            document.querySelector('.nav-item[data-section="' + name + '"]')?.classList.add('active');
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.getElementById('section' + name.charAt(0).toUpperCase() + name.slice(1))?.classList.add('active');
+            const titles = { dashboard: 'Dashboard', customers: 'Kunden', requirements: 'Anforderungen', pool: 'Mitarbeiter-Pool', assignments: 'Einsatzplanung', candidates: 'Bewerber', calendar: 'Kalender', timeoff: 'Urlaub', users: 'Benutzer', settings: 'Einstellungen' };
+            document.getElementById('pageTitle').textContent = titles[name] || 'Dashboard';
+            if (name === 'customers') loadCustomers();
+            if (name === 'requirements') loadRequirements();
+            if (name === 'pool') loadPool();
+            if (name === 'assignments') loadAssignments();
+            if (name === 'candidates') loadCandidates();
+            if (name === 'timeoff') loadTimeoff();
+            if (name === 'users') loadUsers();
+        }
+
+        // ==================== DASHBOARD ====================
+        function loadDashboard() {
+            updateVacationWidget();
+            const stats = document.getElementById('statsGrid');
+            const actions = document.getElementById('quickActions');
+            if (currentUser.role !== 'employee') {
+                const openReqs = cacheRequirements.filter(r => r.status === 'open').length;
+                const inAssignment = cacheAssignments.filter(a => ['leased', 'placed', 'presented'].includes(a.status)).length;
+                stats.innerHTML = '<div class="stat-card"><div class="stat-card-icon blue"><span class="icon">business</span></div><div class="stat-card-value">' + cacheCustomers.length + '</div><div class="stat-card-label">Kunden</div></div><div class="stat-card"><div class="stat-card-icon orange"><span class="icon">assignment</span></div><div class="stat-card-value">' + openReqs + '</div><div class="stat-card-label">Offene Anforderungen</div></div><div class="stat-card"><div class="stat-card-icon green"><span class="icon">groups</span></div><div class="stat-card-value">' + cacheEmployees.length + '</div><div class="stat-card-label">Mitarbeiter</div></div><div class="stat-card"><div class="stat-card-icon purple"><span class="icon">swap_horiz</span></div><div class="stat-card-value">' + inAssignment + '</div><div class="stat-card-label">Im Einsatz</div></div>';
+                actions.innerHTML = '<div class="quick-action" onclick="openModal(\'customerModal\')"><span class="icon">add_business</span><h4>Neuer Kunde</h4><p>Kundenunternehmen anlegen</p></div><div class="quick-action" onclick="openModal(\'requirementModal\')"><span class="icon">post_add</span><h4>Anforderung</h4><p>Stellenanforderung erstellen</p></div><div class="quick-action" onclick="openModal(\'assignmentModal\')"><span class="icon">assignment_ind</span><h4>Zuweisung</h4><p>MA zuweisen</p></div><div class="quick-action" onclick="showSection(\'pool\')"><span class="icon">groups</span><h4>Pool</h4><p>Mitarbeiter verwalten</p></div>';
+            } else {
+                const remaining = (currentUser.vacationDays || 30) - (currentUser.usedVacationDays || 0);
+                stats.innerHTML = '<div class="stat-card"><div class="stat-card-icon green"><span class="icon">event_available</span></div><div class="stat-card-value">' + remaining + '</div><div class="stat-card-label">Urlaubstage uebrig</div></div>';
+                actions.innerHTML = '<div class="quick-action" onclick="openModal(\'timeoffModal\')"><span class="icon">beach_access</span><h4>Urlaub</h4><p>Urlaub beantragen</p></div>';
+            }
+        }
+
+        function updateVacationWidget() {
+            const total = currentUser.vacationDays || 30;
+            const used = currentUser.usedVacationDays || 0;
+            const pending = cacheTimeoff.filter(r => r.userId === currentUser.id && r.status === 'pending').reduce((s, r) => s + (r.days || 0), 0);
+            ['vacTotal', 'vacTotal2'].forEach(id => { const el = document.getElementById(id); if (el) el.textContent = total; });
+            ['vacRemaining', 'vacRemaining2'].forEach(id => { const el = document.getElementById(id); if (el) el.textContent = total - used; });
+            ['vacPending', 'vacPending2'].forEach(id => { const el = document.getElementById(id); if (el) el.textContent = pending; });
+        }
+
+        function updateBadges() {
+            document.getElementById('customersBadge').textContent = cacheCustomers.length;
+            document.getElementById('reqBadge').textContent = cacheRequirements.filter(r => r.status === 'open').length;
+            document.getElementById('poolBadge').textContent = cacheEmployees.length;
+            document.getElementById('candidatesBadge').textContent = cacheApplications.filter(a => a.status === 'new').length;
+            document.getElementById('timeoffBadge').textContent = cacheTimeoff.filter(r => r.status === 'pending').length;
+        }
+
+        // ==================== CUSTOMERS ====================
+        function loadCustomers() {
+            const grid = document.getElementById('customersGrid');
+            if (!cacheCustomers.length) { grid.innerHTML = '<p style="color:var(--text-2)">Keine Kunden vorhanden.</p>'; return; }
+            grid.innerHTML = cacheCustomers.map(c => {
+                const reqs = cacheRequirements.filter(r => r.customerId === c._id || r.customerId?._id === c._id);
+                const openReqs = reqs.filter(r => r.status === 'open').length;
+                const assignments = cacheAssignments.filter(a => (a.customerId === c._id || a.customerId?._id === c._id) && ['leased', 'placed', 'presented'].includes(a.status));
+                return '<div class="customer-card"><div class="customer-card-header"><div class="customer-card-logo">' + c.name.substring(0, 2).toUpperCase() + '</div><div class="customer-card-info"><h4>' + c.name + '</h4><p>' + (c.branch || '') + ' - ' + (c.city || '') + '</p></div></div><div class="customer-card-body"><div class="customer-card-stats"><div class="customer-stat"><div class="customer-stat-value">' + openReqs + '</div><div class="customer-stat-label">Offen</div></div><div class="customer-stat"><div class="customer-stat-value">' + assignments.length + '</div><div class="customer-stat-label">Im Einsatz</div></div></div><p style="font-size:13px;color:var(--text-2)"><strong>AP:</strong> ' + (c.contact || '-') + '</p></div><div class="customer-card-footer"><button class="btn btn-sm btn-primary" onclick="newRequirementFor(\'' + c._id + '\')">+ Anforderung</button></div></div>';
+            }).join('');
+        }
+
+        async function saveCustomer(e) {
+            e.preventDefault();
+            const data = { name: document.getElementById('custName').value.trim(), branch: document.getElementById('custBranch').value.trim(), number: document.getElementById('custNumber').value.trim(), address: document.getElementById('custAddress').value.trim(), zip: document.getElementById('custZip').value.trim(), city: document.getElementById('custCity').value.trim(), contact: document.getElementById('custContact').value.trim(), contactPosition: document.getElementById('custContactPos').value.trim(), phone: document.getElementById('custPhone').value.trim(), email: document.getElementById('custEmail').value.trim(), notes: document.getElementById('custNotes').value.trim() };
+            const res = await api('/customers', 'POST', data);
+            if (res.success) { cacheCustomers.unshift(res.data); showToast('Gespeichert', 'Kunde angelegt.', 'success'); closeModal('customerModal'); document.getElementById('customerForm').reset(); loadCustomers(); updateBadges(); }
+            else showToast('Fehler', res.message, 'error');
+        }
+
+        function newRequirementFor(customerId) { openModal('requirementModal'); setTimeout(() => { populateCustomerSelect(); document.getElementById('reqCustomer').value = customerId; }, 100); }
+
+        // ==================== REQUIREMENTS ====================
+        function loadRequirements() {
+            populateCustomerSelect();
+            const tbody = document.getElementById('requirementsTableBody');
+            if (!cacheRequirements.length) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--text-2)">Keine Anforderungen</td></tr>'; return; }
+            tbody.innerHTML = cacheRequirements.map(r => {
+                const cust = r.customerId?.name || cacheCustomers.find(c => c._id === r.customerId)?.name || 'Unbekannt';
+                const priorityBadge = r.priority === 'urgent' ? 'badge-red' : r.priority === 'high' ? 'badge-orange' : 'badge-gray';
+                return '<tr><td>' + cust + '</td><td>' + r.position + '</td><td>' + (r.count || 1) + '</td><td><span class="badge ' + (r.status === 'open' ? 'badge-green' : 'badge-gray') + '">' + (r.status === 'open' ? 'Offen' : 'Geschlossen') + '</span></td><td>' + formatDate(r.createdAt) + '</td><td>' + (r.status === 'open' ? '<button class="btn btn-sm btn-secondary" onclick="closeRequirement(\'' + r._id + '\')">Schliessen</button>' : '') + '</td></tr>';
+            }).join('');
+        }
+
+        function populateCustomerSelect() {
+            const sel = document.getElementById('reqCustomer');
+            if (sel) sel.innerHTML = '<option value="">Bitte waehlen...</option>' + cacheCustomers.map(c => '<option value="' + c._id + '">' + c.name + '</option>').join('');
+        }
+
+        async function saveRequirement(e) {
+            e.preventDefault();
+            const data = { customerId: document.getElementById('reqCustomer').value, position: document.getElementById('reqPosition').value.trim(), count: parseInt(document.getElementById('reqCount').value) || 1, wage: document.getElementById('reqWage').value.trim(), startDate: document.getElementById('reqStart').value, details: document.getElementById('reqDetails').value.trim(), priority: document.getElementById('reqPriority').value };
+            const res = await api('/requirements', 'POST', data);
+            if (res.success) { cacheRequirements.unshift(res.data); showToast('Gespeichert', 'Anforderung erstellt.', 'success'); closeModal('requirementModal'); document.getElementById('requirementForm').reset(); loadRequirements(); updateBadges(); }
+        }
+
+        async function closeRequirement(id) {
+            const res = await api('/requirements/' + id + '/close', 'PATCH');
+            if (res.success) { const r = cacheRequirements.find(x => x._id === id); if (r) r.status = 'closed'; loadRequirements(); updateBadges(); showToast('Geschlossen', 'Anforderung geschlossen.', 'success'); }
+        }
+
+        // ==================== EMPLOYEE POOL ====================
+        function loadPool() {
+            const tbody = document.getElementById('poolTableBody');
+            let employees = [...cacheEmployees];
+            if (currentPoolFilter !== 'all') {
+                employees = employees.filter(emp => {
+                    const assignment = cacheAssignments.find(a => (a.employeeId === emp._id || a.employeeId?._id === emp._id) && !['withdrawn', 'taken_over'].includes(a.status));
+                    if (currentPoolFilter === 'available') return !assignment;
+                    if (currentPoolFilter === 'assigned') return assignment && ['leased', 'placed'].includes(assignment.status);
+                    if (currentPoolFilter === 'presented') return assignment && assignment.status === 'presented';
+                    if (currentPoolFilter === 'sick') return assignment && assignment.status === 'sick';
+                    if (currentPoolFilter === 'terminated') return assignment && assignment.status === 'terminated';
+                    return true;
+                });
+            }
+            if (!employees.length) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--text-2)">Keine Mitarbeiter</td></tr>'; return; }
+            tbody.innerHTML = employees.map(emp => {
+                const assignment = cacheAssignments.find(a => (a.employeeId === emp._id || a.employeeId?._id === emp._id) && !['withdrawn', 'taken_over'].includes(a.status));
+                const customer = assignment ? (assignment.customerId?.name || cacheCustomers.find(c => c._id === assignment.customerId)?.name || '') : '';
+                const statusInfo = getStatusInfo(assignment);
+                return '<tr><td><div class="table-user"><div class="avatar avatar-sm">' + getInitials(emp.firstName, emp.lastName) + '</div><div><div class="table-user-name">' + emp.firstName + ' ' + emp.lastName + '</div></div></div></td><td>' + (emp.position || '-') + '</td><td><span class="badge ' + statusInfo.badge + '">' + statusInfo.label + '</span></td><td>' + (customer || 'Verfuegbar') + '</td><td>' + (assignment ? formatDate(assignment.startDate) : '-') + '</td><td><div class="table-actions">' + (!assignment ? '<button class="btn btn-sm btn-primary" onclick="assignEmployee(\'' + emp._id + '\')">Zuweisen</button>' : '<button class="btn btn-sm btn-warning" onclick="openStatusModal(\'' + assignment._id + '\')">Status</button>') + '</div></td></tr>';
+            }).join('');
+        }
+
+        function getStatusInfo(assignment) {
+            if (!assignment) return { label: 'Verfuegbar', badge: 'badge-green' };
+            const map = { presented: { label: 'Vorgestellt', badge: 'badge-orange' }, leased: { label: 'Ueberlassen', badge: 'badge-blue' }, placed: { label: 'Vermittelt', badge: 'badge-green' }, sick: { label: 'Krank', badge: 'badge-red' }, terminated: { label: 'Gekuendigt', badge: 'badge-gray' } };
+            return map[assignment.status] || { label: assignment.status, badge: 'badge-gray' };
+        }
+
+        function filterPool(filter) {
+            currentPoolFilter = filter;
+            document.querySelectorAll('.pool-filter').forEach(f => f.classList.remove('active'));
+            document.querySelector('.pool-filter[data-filter="' + filter + '"]')?.classList.add('active');
+            loadPool();
+        }
+
+        async function saveEmployee(e) {
+            e.preventDefault();
+            const data = { firstName: document.getElementById('empFirstName').value.trim(), lastName: document.getElementById('empLastName').value.trim(), email: document.getElementById('empEmail').value.trim(), phone: document.getElementById('empPhone').value.trim(), position: document.getElementById('empPosition').value.trim(), number: document.getElementById('empNumber').value.trim(), wage: document.getElementById('empWage').value.trim(), startDate: document.getElementById('empStartDate').value, notes: document.getElementById('empNotes').value.trim() };
+            const res = await api('/employees', 'POST', data);
+            if (res.success) { cacheEmployees.unshift(res.data); showToast('Gespeichert', 'Mitarbeiter hinzugefuegt.', 'success'); closeModal('employeeModal'); document.getElementById('employeeForm').reset(); loadPool(); updateBadges(); }
+        }
+
+        function assignEmployee(employeeId) { openModal('assignmentModal'); setTimeout(() => { populateAssignmentSelects(); document.getElementById('assignEmployee').value = employeeId; }, 100); }
+
+        // ==================== ASSIGNMENTS ====================
+        function loadAssignments() {
+            populateAssignmentSelects();
+            const tbody = document.getElementById('assignmentsTableBody');
+            const active = cacheAssignments.filter(a => !['withdrawn', 'taken_over'].includes(a.status));
+            if (!active.length) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--text-2)">Keine aktiven Einsaetze</td></tr>'; return; }
+            tbody.innerHTML = active.map(a => {
+                const emp = a.employeeId?.firstName ? a.employeeId : cacheEmployees.find(e => e._id === a.employeeId);
+                const cust = a.customerId?.name ? a.customerId : cacheCustomers.find(c => c._id === a.customerId);
+                const statusInfo = getStatusInfo(a);
+                return '<tr><td>' + (emp ? emp.firstName + ' ' + emp.lastName : 'Unbekannt') + '</td><td>' + (cust?.name || 'Unbekannt') + '</td><td>' + (a.position || '-') + '</td><td><span class="badge ' + statusInfo.badge + '">' + statusInfo.label + '</span></td><td>' + formatDate(a.startDate) + '</td><td>' + (a.endDate ? formatDate(a.endDate) : '-') + '</td><td><button class="btn btn-sm btn-warning" onclick="openStatusModal(\'' + a._id + '\')">Status</button></td></tr>';
+            }).join('');
+        }
+
+        function populateAssignmentSelects() {
+            const empSel = document.getElementById('assignEmployee');
+            const custSel = document.getElementById('assignCustomer');
+            const availableEmps = cacheEmployees.filter(e => !cacheAssignments.find(a => (a.employeeId === e._id || a.employeeId?._id === e._id) && !['withdrawn', 'taken_over'].includes(a.status)));
+            if (empSel) empSel.innerHTML = '<option value="">Bitte waehlen...</option>' + availableEmps.map(e => '<option value="' + e._id + '">' + e.firstName + ' ' + e.lastName + '</option>').join('');
+            if (custSel) custSel.innerHTML = '<option value="">Bitte waehlen...</option>' + cacheCustomers.map(c => '<option value="' + c._id + '">' + c.name + '</option>').join('');
+        }
+
+        async function saveAssignment(e) {
+            e.preventDefault();
+            const data = { employeeId: document.getElementById('assignEmployee').value, customerId: document.getElementById('assignCustomer').value, position: document.getElementById('assignPosition').value.trim(), startDate: document.getElementById('assignStart').value, endDate: document.getElementById('assignEnd').value || null, status: document.getElementById('assignType').value, notes: document.getElementById('assignNotes').value.trim() };
+            const res = await api('/assignments', 'POST', data);
+            if (res.success) { cacheAssignments.unshift(res.data); showToast('Zugewiesen', 'Mitarbeiter zugewiesen.', 'success'); closeModal('assignmentModal'); document.getElementById('assignmentForm').reset(); loadAssignments(); loadPool(); loadDashboard(); }
+        }
+
+        function openStatusModal(assignmentId) { document.getElementById('statusAssignmentId').value = assignmentId; document.getElementById('statusDate').value = new Date().toISOString().split('T')[0]; openModal('statusModal'); }
+
+        async function changeAssignmentStatus(e) {
+            e.preventDefault();
+            const id = document.getElementById('statusAssignmentId').value;
+            const data = { status: document.getElementById('newStatus').value, date: document.getElementById('statusDate').value, notes: document.getElementById('statusNotes').value };
+            const res = await api('/assignments/' + id + '/status', 'PATCH', data);
+            if (res.success) { const idx = cacheAssignments.findIndex(a => a._id === id); if (idx >= 0) cacheAssignments[idx] = res.data; showToast('Status geaendert', 'Status aktualisiert.', 'success'); closeModal('statusModal'); document.getElementById('statusForm').reset(); loadAssignments(); loadPool(); loadDashboard(); }
+        }
+
+        // ==================== CANDIDATES ====================
+        function loadCandidates() {
+            const tbody = document.getElementById('candidatesTableBody');
+            if (!cacheApplications.length) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--text-2)">Keine Bewerbungen</td></tr>'; return; }
+            tbody.innerHTML = cacheApplications.map(a => '<tr><td><div class="table-user"><div class="avatar avatar-sm">' + getInitials(a.firstName, a.lastName) + '</div><div><div class="table-user-name">' + a.firstName + ' ' + a.lastName + '</div><div class="table-user-sub">' + a.email + '</div></div></div></td><td>' + a.position + '</td><td><span class="badge ' + (a.status === 'new' ? 'badge-blue' : a.status === 'accepted' ? 'badge-green' : 'badge-red') + '">' + (a.status === 'new' ? 'Neu' : a.status === 'accepted' ? 'Angenommen' : 'Abgelehnt') + '</span></td><td>' + formatDate(a.createdAt) + '</td><td>' + (a.status === 'new' ? '<div class="table-actions"><button class="btn btn-sm btn-success" onclick="acceptCandidate(\'' + a._id + '\')">In Pool</button><button class="btn btn-sm btn-danger" onclick="rejectCandidate(\'' + a._id + '\')">Ablehnen</button></div>' : '') + '</td></tr>').join('');
+        }
+
+        async function acceptCandidate(id) {
+            const res = await api('/applications/' + id + '/accept', 'PATCH');
+            if (res.success) { const app = cacheApplications.find(a => a._id === id); if (app) app.status = 'accepted'; if (res.data.employee) cacheEmployees.unshift(res.data.employee); loadCandidates(); updateBadges(); showToast('Angenommen', 'In Pool uebernommen.', 'success'); }
+        }
+
+        async function rejectCandidate(id) {
+            const res = await api('/applications/' + id + '/reject', 'PATCH');
+            if (res.success) { const app = cacheApplications.find(a => a._id === id); if (app) app.status = 'rejected'; loadCandidates(); updateBadges(); showToast('Abgelehnt', 'Bewerber abgelehnt.', 'success'); }
+        }
+
+        // ==================== TIMEOFF ====================
+        function loadTimeoff() {
+            updateVacationWidget();
+            const tbody = document.getElementById('timeoffTableBody');
+            let reqs = currentUser.role === 'employee' ? cacheTimeoff.filter(r => r.userId === currentUser.id || r.userId?._id === currentUser.id) : cacheTimeoff;
+            if (!reqs.length) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--text-2)">Keine Urlaubsantraege</td></tr>'; return; }
+            tbody.innerHTML = reqs.map(r => {
+                const user = r.userId?.firstName ? r.userId : cacheUsers.find(u => u._id === r.userId);
+                return '<tr><td>' + (user ? user.firstName + ' ' + user.lastName : 'Unbekannt') + '</td><td>' + formatDate(r.from) + ' - ' + formatDate(r.to) + '</td><td>' + r.days + '</td><td><span class="badge ' + (r.status === 'pending' ? 'badge-orange' : r.status === 'approved' ? 'badge-green' : 'badge-red') + '">' + (r.status === 'pending' ? 'Ausstehend' : r.status === 'approved' ? 'Genehmigt' : 'Abgelehnt') + '</span></td><td>' + (r.status === 'pending' && currentUser.role !== 'employee' ? '<div class="table-actions"><button class="btn btn-sm btn-success" onclick="approveTimeoff(\'' + r._id + '\')">Genehmigen</button><button class="btn btn-sm btn-danger" onclick="rejectTimeoff(\'' + r._id + '\')">Ablehnen</button></div>' : '') + '</td></tr>';
+            }).join('');
+        }
+
+        async function requestTimeoff(e) {
+            e.preventDefault();
+            const from = document.getElementById('timeoffFrom').value;
+            const to = document.getElementById('timeoffTo').value;
+            const days = Math.ceil(Math.abs(new Date(to) - new Date(from)) / (1000 * 60 * 60 * 24)) + 1;
+            const data = { from, to, days, type: document.getElementById('timeoffType').value, note: document.getElementById('timeoffNote').value };
+            const res = await api('/timeoff', 'POST', data);
+            if (res.success) { cacheTimeoff.unshift(res.data); showToast('Eingereicht', 'Antrag gesendet.', 'success'); closeModal('timeoffModal'); document.getElementById('timeoffForm').reset(); loadTimeoff(); updateBadges(); }
+        }
+
+        async function approveTimeoff(id) {
+            const res = await api('/timeoff/' + id + '/approve', 'PATCH');
+            if (res.success) { const r = cacheTimeoff.find(x => x._id === id); if (r) r.status = 'approved'; loadTimeoff(); updateBadges(); showToast('Genehmigt', 'Antrag genehmigt.', 'success'); }
+        }
+
+        async function rejectTimeoff(id) {
+            const res = await api('/timeoff/' + id + '/reject', 'PATCH');
+            if (res.success) { const r = cacheTimeoff.find(x => x._id === id); if (r) r.status = 'rejected'; loadTimeoff(); updateBadges(); showToast('Abgelehnt', 'Antrag abgelehnt.', 'success'); }
+        }
+
+        // ==================== USERS ====================
+        function loadUsers() {
+            const tbody = document.getElementById('usersTableBody');
+            tbody.innerHTML = cacheUsers.map(u => '<tr><td><div class="table-user"><div class="avatar avatar-sm">' + getInitials(u.firstName, u.lastName) + '</div><div><div class="table-user-name">' + u.firstName + ' ' + u.lastName + '</div><div class="table-user-sub">' + u.email + '</div></div></div></td><td><span class="badge ' + getRoleBadge(u.role) + '">' + getRoleLabel(u.role) + '</span></td><td><span class="badge ' + (u.status === 'active' ? 'badge-green' : 'badge-red') + '">' + (u.status === 'active' ? 'Aktiv' : 'Inaktiv') + '</span></td><td>' + (u.lastLogin ? formatDate(u.lastLogin) : 'Nie') + '</td><td>' + (u._id !== currentUser.id ? '<button class="btn btn-sm btn-secondary" onclick="toggleUserStatus(\'' + u._id + '\')">' + (u.status === 'active' ? 'Deaktivieren' : 'Aktivieren') + '</button>' : '') + '</td></tr>').join('');
+        }
+
+        async function addUser(e) {
+            e.preventDefault();
+            const data = { firstName: document.getElementById('newUserFirstName').value.trim(), lastName: document.getElementById('newUserLastName').value.trim(), email: document.getElementById('newUserEmail').value.trim(), password: document.getElementById('newUserPassword').value, role: document.getElementById('newUserRole').value, vacationDays: parseInt(document.getElementById('newUserVacation').value) || 30 };
+            const res = await api('/users', 'POST', data);
+            if (res.success) { cacheUsers.unshift(res.data); showToast('Angelegt', 'Benutzer erstellt.', 'success'); closeModal('userModal'); document.getElementById('userForm').reset(); loadUsers(); }
+            else showToast('Fehler', res.message, 'error');
+        }
+
+        async function toggleUserStatus(id) {
+            const res = await api('/users/' + id + '/status', 'PATCH');
+            if (res.success) { const u = cacheUsers.find(x => x._id === id); if (u) u.status = res.data.status; loadUsers(); showToast('Status', 'Status geaendert.', 'success'); }
+        }
+
+        // ==================== APPLICATION FORM ====================
+        function renderSkills() { document.getElementById('skillsContainer').innerHTML = appSkills.map((s, i) => '<div class="skill-tag">' + s + '<span class="remove icon" onclick="appSkills.splice(' + i + ',1);renderSkills()">close</span></div>').join(''); }
+
+        async function submitApplication(e) {
+            e.preventDefault();
+            if (!document.getElementById('gdprConsent').checked) { showToast('Fehler', 'Bitte DSGVO zustimmen.', 'error'); return; }
+            const data = { firstName: document.getElementById('appFirstName').value.trim(), lastName: document.getElementById('appLastName').value.trim(), email: document.getElementById('appEmail').value.trim(), phone: document.getElementById('appPhone').value.trim(), position: document.getElementById('appPosition').value, salary: document.getElementById('appSalary').value, startDate: document.getElementById('appStartDate').value, skills: [...appSkills], gdprConsent: true, gdprConsentDate: new Date().toISOString() };
+            const res = await api('/applications', 'POST', data);
+            if (res.success) { showToast('Erfolg!', 'Bewerbung eingereicht.', 'success'); document.getElementById('applicationForm').reset(); appSkills = []; renderSkills(); setTimeout(backToWelcome, 2000); }
+        }
+
+        // ==================== HELPERS ====================
+        function openModal(id) { document.getElementById(id)?.classList.add('active'); }
+        function closeModal(id) { document.getElementById(id)?.classList.remove('active'); }
+        function showToast(title, msg, type = 'success') {
+            const c = document.getElementById('toastContainer');
+            const t = document.createElement('div');
+            t.className = 'toast ' + type;
+            t.innerHTML = '<span class="icon">' + (type === 'success' ? 'check_circle' : 'error') + '</span><div class="toast-content"><div class="toast-title">' + title + '</div><div class="toast-message">' + msg + '</div></div><span class="toast-close icon" onclick="this.parentElement.remove()">close</span>';
+            c.appendChild(t);
+            setTimeout(() => t.remove(), 5000);
+        }
+        function getInitials(f, l) { return ((f?.[0] || '') + (l?.[0] || '')).toUpperCase(); }
+        function getRoleLabel(r) { return { admin: 'Administrator', supervisor: 'Team Manager', employee: 'Mitarbeiter' }[r] || r; }
+        function getRoleBadge(r) { return { admin: 'badge-purple', supervisor: 'badge-orange', employee: 'badge-green' }[r] || 'badge-gray'; }
+        function formatDate(d) { if (!d) return '-'; return new Date(d).toLocaleDateString('de-DE'); }
+    </script>
+</body>
+</html>
+
