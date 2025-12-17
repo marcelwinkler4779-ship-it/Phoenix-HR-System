@@ -24,12 +24,10 @@ mongoose.connect(MONGODB_URI)
         const adminExists = await User.findOne({ email: 'marcel.winkler4779@gmail.com' });
         if (!adminExists) {
             await User.create({ firstName: 'Marcel', lastName: 'Winkler', email: 'marcel.winkler4779@gmail.com', password: 'Flyclub@1979', role: 'admin', status: 'active', vacationDays: 30 });
-            console.log('Admin erstellt');
         }
         const tmExists = await User.findOne({ email: 'team1@phoenix.de' });
         if (!tmExists) {
             await User.create({ firstName: 'Team', lastName: 'Manager 1', email: 'team1@phoenix.de', password: 'team123', role: 'supervisor', status: 'active', vacationDays: 30 });
-            console.log('Team Manager erstellt');
         }
     })
     .catch(err => console.error('MongoDB Fehler:', err));
@@ -44,19 +42,13 @@ app.use('/api/timeoff', require('./routes/timeoff'));
 app.use('/api/applications', require('./routes/applications'));
 
 app.get('/api/health', (req, res) => {
-    res.json({ status: 'online', database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected' });
+    res.json({ status: 'online' });
 });
 
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, '../public/index.html'));
 });
 
-io.on('connection', (socket) => {
-    console.log('Socket verbunden:', socket.id);
-    socket.on('disconnect', () => { console.log('Socket getrennt:', socket.id); });
-});
-
 server.listen(PORT, () => {
-    console.log('PHOENIX HR BACKEND GESTARTET');
-    console.log('Port:', PORT);
+    console.log('PHOENIX HR auf Port', PORT);
 });
