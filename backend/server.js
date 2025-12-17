@@ -38,3 +38,8 @@ server.listen(PORT, () => {
     console.log('Port:', PORT);
     console.log('Datenbank:', mongoose.connection.readyState === 1 ? 'Verbunden ✅' : 'Getrennt ❌');
 });
+
+app.use(express.static('../'));
+app.get('/', (req, res) => {
+    res.sendFile(__dirname + '/../index.html');
+});
